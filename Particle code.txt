@@ -1,0 +1,50 @@
+//Aleksander Norvoll Espenakk
+#include "ThingSpeak/ThingSpeak.h"
+#include "Adafruit_DHT/Adafruit_DHT.h"
+#define DHTPIN 5
+#define PIRPIN A2
+#define DHTTYPE DHT11
+
+DHT dht(DHTPIN, DHTTYPE);
+TCPClient client;
+
+int temp, humid, light, gasValue, movementValue, sendDelay = 2000000;    
+const int gasPin = A1, lightPin = A0, pirPin = D0;
+
+unsigned int myChannelNumber = 179783;
+const char * myWriteAPIKey = "HAU424MFD73DGNV5";
+
+void setup() {
+    dht.begin();
+	ThingSpeak.begin(client);
+}
+
+void loop() {
+    //Light
+    light = ((analogRead(lightPin))/100);
+    
+    //Temp
+    temp = dht.getTempCelcius();
+    
+    //Humid
+    humid = dht.getHumidity();
+    
+    //Gas
+    gasValue = analogRead(gasPin);
+    
+    //movement
+    if(digitalRead(pirPin) == HIGH){
+        movementValue = 1;
+    }else{
+        movementValue = 0;
+    }
+    
+    ThingSpeak.setField(1,temp);
+    ThingSpeak.setField(2,light);
+    ThingSpeak.setField(3,humid);
+    ThingSpeak.setField(4,gasValue);
+    ThingSpeak.setField(5,movementValue);
+    
+    ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);  
+    delay(sendDelay);
+}
