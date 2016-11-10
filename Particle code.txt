@@ -8,7 +8,7 @@
 DHT dht(DHTPIN, DHTTYPE);
 TCPClient client;
 
-int temp, humid, light, gasValue, movementValue, sendDelay = 2000000;    
+int temp, humid, light, gasValue, movementValue, sendDelay = 100000;    
 const int gasPin = A1, lightPin = A0, pirPin = D0;
 
 unsigned int myChannelNumber = 179783;
@@ -21,7 +21,8 @@ void setup() {
 
 void loop() {
     //Light
-    light = ((analogRead(lightPin))/100);
+    light = (analogRead(lightPin));
+    int lightpercent = map(light, 0, 2188, 0, 100);
     
     //Temp
     temp = dht.getTempCelcius();
@@ -40,7 +41,7 @@ void loop() {
     }
     
     ThingSpeak.setField(1,temp);
-    ThingSpeak.setField(2,light);
+    ThingSpeak.setField(2,lightpercent);
     ThingSpeak.setField(3,humid);
     ThingSpeak.setField(4,gasValue);
     ThingSpeak.setField(5,movementValue);
